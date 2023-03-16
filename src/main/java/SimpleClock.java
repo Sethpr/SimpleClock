@@ -8,13 +8,14 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 
-public class SimpleClock extends JFrame {
+public class SimpleClock extends JFrame implements Runnable {
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat timeFormat;
         SimpleDateFormat timeFormatMilitary;
         SimpleDateFormat dayFormat;
         SimpleDateFormat dateFormat;
+
 
         TimeZone local = calendar.getTimeZone();
         TimeZone GMT = TimeZone.getTimeZone("GMT");
@@ -34,17 +35,17 @@ public class SimpleClock extends JFrame {
     SimpleClock() {
             this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.setTitle("Digital Clock");
-            this.setLayout(new FlowLayout());
-            this.setSize(400, 250);
-            this.setResizable(true);
+            this.setLayout(new FlowLayout(5, 15, 5));
+            this.setSize(362, 250);
+            this.setResizable(false);
     
             timeFormat = new SimpleDateFormat("hh:mm:ss a");
             timeFormatMilitary = new SimpleDateFormat("HH:mm:ss");
             dayFormat = new SimpleDateFormat("EEEE");
             dateFormat = new SimpleDateFormat("dd MMMMM, yyyy");
             timeLabel = new JLabel();
-            timeLabel.setFont(new Font("SANS_SERIF", Font.PLAIN, 59));
-            timeLabel.setBackground(Color.BLACK);
+            timeLabel.setFont(new Font("SANS_SERIF", Font.PLAIN, 55));
+            timeLabel.setBackground(new Color(52,194,170));
             timeLabel.setForeground(Color.WHITE);
             timeLabel.setOpaque(true);
             dayLabel = new JLabel();
@@ -54,8 +55,10 @@ public class SimpleClock extends JFrame {
             dateLabel.setFont(new Font("Ink Free",Font.BOLD,30));
 
             timeSwap = new JButton();
+            timeSwap.setLayout(null);
             timeSwap.setText("Military");
             timeSwap.addActionListener(this::militaryButton);
+            timeSwap.setLocation(150, 200);
 
             gmtLocal = new JButton();
             gmtLocal.setText("GMT");
@@ -69,28 +72,11 @@ public class SimpleClock extends JFrame {
             this.add(gmtLocal);
             this.setVisible(true);
     
-            setTimer();
+            //setTimer();
+            t = new Thread(this, "Thread");
+            t.start();
         }
     
-        public void setTimer() {
-
-            while (true) {
-
-                timeSet();
-    
-                day = dayFormat.format(Calendar.getInstance().getTime());
-                dayLabel.setText(day);
-    
-                date = dateFormat.format(Calendar.getInstance().getTime());
-                dateLabel.setText(date);
-    
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                    e.getStackTrace();
-                }
-            }
-        }
         public static void main(String[] args) {
             new SimpleClock();
         }
@@ -130,4 +116,22 @@ public class SimpleClock extends JFrame {
     }
 
 
+    @Override
+    public void run() {
+        while(true) {
+            timeSet();
+
+            day = dayFormat.format(Calendar.getInstance().getTime());
+            dayLabel.setText(day);
+
+            date = dateFormat.format(Calendar.getInstance().getTime());
+            dateLabel.setText(date);
+
+            try {
+                t.sleep(1000);
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+        }
+    }
 }
